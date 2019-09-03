@@ -9,15 +9,15 @@ require(raptr)
 require(geosphere)
 require(rgeos)
 
-  
 
+#I'm going to comment on your ANALYSIS
 setwd("I:/Research/Shares/maxnp_lab/RESEARCH/McEvoy2/National Forest Foundation/SW Carbon Methodology/R Projects/Data")
 
 
 # This is a script for creating the sampling frame to be used in the SW Forest Restoration Carbon Methodology. This script, when complete, should be combined with the rest of the project script in 'SW MTBS DRAFT.R'
 
 
-# The first criteria of the porject area is that it be within a specfic pyrome. Import the national pyrome shapefile, identify the pyrome of interest, and project the shapefile into the correct crs. 
+# The first criteria of the porject area is that it be within a specfic pyrome. Import the national pyrome shapefile, identify the pyrome of interest, and project the shapefile into the correct crs.
 
 US_Pyrome <- readOGR(dsn = "E:/Spatial Data/National FSim/Pyromes", layer = "Pyrome_20150605")
 head(US_Pyrome)
@@ -26,16 +26,16 @@ US_Pyrome[39,] # Find the pyrome of interest
 # Pull out the pyrome of interest and create new SpatialPolygonsDataFrame
 Pyrome <- US_Pyrome[US_Pyrome$NAME == "Arizona/New Mexico Mountains (Mogollon Rim)",]
 plot(Pyrome)
-crs(Pyrome) # Notice how Pyrome is in Lat/Long crs. We Want it in the appropriate UTM. 
+crs(Pyrome) # Notice how Pyrome is in Lat/Long crs. We Want it in the appropriate UTM.
 
 Pyrome <- spTransform(Pyrome, "+proj=utm +zone=12 +ellps=GRS80 +units=m +no_defs")
 crs(Pyrome) # check the crs again and see that it has changed to the appropriate UTM projection
 
 acres <- gArea(Pyrome)/4046.856
 acres
-# Now, identify all the areas within the pyrome that are in the appropriate fire regime group, national vegetation class, and vegetation condition class. 
+# Now, identify all the areas within the pyrome that are in the appropriate fire regime group, national vegetation class, and vegetation condition class.
 
-#Fire Regime Group 
+#Fire Regime Group
 FRG <- raster("./Inputs/us_140frg.tif")
 plot(FRG) # Notice how the extent downloaded from LANDFIRE is quite large. INCLUDE description of LANDFIRE FRG classes
 FRG
@@ -55,11 +55,11 @@ VCC
 
 # Function starts with the downloaded rasters (FRG, NVC, VCC), projects them into the appropriate crs, crops them to the smaller extent of the Pyrome, and extracts only those pixels with values inside the pyrome
 
-#The input rasters need to be projected into the same crs as Pyrome, and they all need to be in the same extent as one another for later calculations. In order to do this, start by creating a blank raster set to the spatial extent of Pyrome and at the desired resolution. 
+#The input rasters need to be projected into the same crs as Pyrome, and they all need to be in the same extent as one another for later calculations. In order to do this, start by creating a blank raster set to the spatial extent of Pyrome and at the desired resolution.
 
 Template <- blank.raster(Pyrome, 360) #Create a blank raster which has the same extent as Pyrome and the desired resolution
 crs(Template)
-crs(Pyrome) # notice how the crs of our blank raster, 'Template,' is blank. 
+crs(Pyrome) # notice how the crs of our blank raster, 'Template,' is blank.
 crs(Template) <- crs(Pyrome) # set the crs of the blank raster to the same as Pyrome so that the blank  raster can serve as a template extent for later steps
 crs(Template)
 Proj <- crs(Template) # create an object which defines the projection to be used throughout the analysis
@@ -95,7 +95,7 @@ FRGsample <- FRGmask %in% c(1,3) # all pixels in Fire Regime Groups 1 and 3 will
 FRGsample
 freq(FRGsample)
 
-NVCsample <- NVCmask %in% c(6075, 6076)# All pixels in Southern Rocky Mountain Ponderosa Pine Forest and Southern Rocky Mountain Ponderosa Pine Woodland will have a value of 1 while all other vegetation types will have a value of 0 
+NVCsample <- NVCmask %in% c(6075, 6076)# All pixels in Southern Rocky Mountain Ponderosa Pine Forest and Southern Rocky Mountain Ponderosa Pine Woodland will have a value of 1 while all other vegetation types will have a value of 0
 NVCsample
 freq(NVCsample)
 
@@ -109,7 +109,7 @@ SampleFrame <- overlay(SampleStack, fun=function(x,y,z){x*y*z}) # double check t
 plot(SampleFrame)
 plot(Pyrome, add = TRUE)
 freq(SampleFrame)
-# See that Sample Frame includes only values of 0 and 1. The area (acres) in the Sample Frame can be calculated by converting pixel number to area. 
+# See that Sample Frame includes only values of 0 and 1. The area (acres) in the Sample Frame can be calculated by converting pixel number to area.
 
 
 #END SAMPLE FRAME CREATION
@@ -159,7 +159,7 @@ lapply(years, FUN = MTBSalign )
 
 #############################################################################
 
-#STEP 3. Calculate the 33-year average acres burned for each severity class. 
+#STEP 3. Calculate the 33-year average acres burned for each severity class.
 
 Severity <- list.files("./Algebra Outputs/", pattern = "[.]tif$", full.names = TRUE)
 
@@ -229,19 +229,3 @@ rownames(MeanFire.m) <- MeanFire[,1]
 x <- barplot(MeanFire.m[2,], ylim = c(0,12000), main = "Average Annual Acres Burned by Severity Class", ylab = "Acres")
 y <- as.matrix(MeanFire[2,2:4])
 text(x,y+500,labels=as.character(y))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
